@@ -23,17 +23,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Toast } from "@/components/ui/toast"
 import { Aptos, AptosConfig, Network as AptosNetwork } from "@aptos-labs/ts-sdk"
 
 // Imports for registering a browser extension wallet plugin on page load
 import { MyWallet } from "@/utils/standardWallet"
 import { registerWallet } from "@aptos-labs/wallet-standard"
 
+// Add these imports at the top of the file, after the existing imports
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 // Example of how to register a browser extension wallet plugin.
 // Browser extension wallets should call registerWallet once on page load.
-;import { toast } from "@/hooks/use-toast"
-(() => {
+import { toast } from "@/hooks/use-toast"
+;(() => {
   if (typeof window === "undefined") return
   const myWallet = new MyWallet()
   registerWallet(myWallet)
@@ -57,11 +59,18 @@ export default function Home() {
     }
   }, [network])
 
+  // Replace the main return statement with this enhanced version (around line 73)
+  // This keeps the same structure but adds subtle styling improvements
   return (
-    <main className="flex flex-col w-full max-w-[1200px] p-6 pb-12 md:px-8 gap-6 mx-auto">
-      <div className="flex justify-between gap-6 pb-10">
+    <main className="flex flex-col w-full max-w-[1200px] p-6 pb-12 md:px-8 gap-6 mx-auto bg-gradient-to-b from-background to-background/50">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex justify-between gap-6 pb-10"
+      >
         <div className="flex flex-col gap-2 md:gap-3">
-          <h1 className="text-xl sm:text-3xl font-semibold tracking-tight">
+          <h1 className="text-xl sm:text-3xl font-semibold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Medical Records System
             {network?.name ? ` — ${network.name}` : ""}
           </h1>
@@ -72,12 +81,12 @@ export default function Home() {
         <div>
           <ShadcnWalletSelector />
         </div>
-      </div>
+      </motion.div>
 
       <WalletConnection />
 
       {connected && (
-        <>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <MedicalRecordsDashboard
             account={account}
             network={network}
@@ -87,23 +96,29 @@ export default function Home() {
             setIsLoading={setIsLoading}
             isLoading={isLoading}
           />
-        </>
+        </motion.div>
       )}
 
       {!connected && (
-        <div className="flex flex-col items-center justify-center p-12 gap-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center justify-center p-12 gap-4 rounded-lg border bg-card text-card-foreground shadow-md hover:shadow-lg transition-all duration-300 backdrop-blur-sm bg-opacity-90"
+        >
           <AlertCircle className="h-12 w-12 text-amber-500" />
           <h2 className="text-xl font-medium">Connect Your Wallet</h2>
           <p className="text-center text-muted-foreground">Please connect your wallet to access your medical records</p>
           <div className="mt-4">
             <ShadcnWalletSelector />
           </div>
-        </div>
+        </motion.div>
       )}
     </main>
   )
 }
 
+// Replace the WalletConnection component with this enhanced version
 function WalletConnection() {
   const { account, connected, network, wallet } = useWallet()
   const { autoConnect, setAutoConnect } = useAutoConnect()
@@ -113,12 +128,27 @@ function WalletConnection() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col gap-4 p-6 rounded-lg border bg-card text-card-foreground shadow-md hover:shadow-lg transition-all duration-300 backdrop-blur-sm bg-opacity-90"
+    >
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Wallet Connected</h2>
-        <div className="flex items-center gap-2">
-          {wallet?.icon && <Image src={wallet.icon || "/placeholder.svg"} alt={wallet.name} width={24} height={24} />}
-          <span>{wallet?.name}</span>
+        <h2 className="text-lg font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          Wallet Connected
+        </h2>
+        <div className="flex items-center gap-2 bg-primary/10 p-2 rounded-full">
+          {wallet?.icon && (
+            <Image
+              src={wallet.icon || "/placeholder.svg"}
+              alt={wallet.name}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+          )}
+          <span className="font-medium">{wallet?.name}</span>
         </div>
       </div>
       <div className="text-sm text-muted-foreground overflow-hidden text-ellipsis">
@@ -130,14 +160,15 @@ function WalletConnection() {
           type="checkbox"
           checked={autoConnect}
           onChange={(e) => setAutoConnect(e.target.checked)}
-          className="h-4 w-4"
+          className="h-4 w-4 accent-primary"
         />
         <span className="text-sm">Auto reconnect on page load</span>
       </label>
-    </div>
+    </motion.div>
   )
 }
 
+// Modify the beginning of the MedicalRecordsDashboard component to add animations
 function MedicalRecordsDashboard({
   account,
   network,
@@ -147,13 +178,13 @@ function MedicalRecordsDashboard({
   setIsLoading,
   isLoading,
 }: {
-  account: any;
-  network: any;
-  connected: boolean;
-  aptosClient: Aptos | null;
-  signAndSubmitTransaction: any;
-  setIsLoading: (loading: boolean) => void;
-  isLoading: boolean;
+  account: any
+  network: any
+  connected: boolean
+  aptosClient: Aptos | null
+  signAndSubmitTransaction: any
+  setIsLoading: (loading: boolean) => void
+  isLoading: boolean
 }) {
   const [patients, setPatients] = useState<any[]>([])
   const [medicalRecords, setMedicalRecords] = useState<any[]>([])
@@ -219,29 +250,28 @@ function MedicalRecordsDashboard({
   // Fetch all patients
   const fetchPatients = async () => {
     if (!aptosClient || !account || !initialized) return
-  
+
     try {
       console.log("Fetching resource at address:", account.address)
       console.log("Resource type:", `${MODULE_ADDRESS}::${MODULE_NAME}::ProviderRegistry`)
-      
+
       const providerResource = await aptosClient.getAccountResource({
         accountAddress: account.address,
         resourceType: `${MODULE_ADDRESS}::${MODULE_NAME}::ProviderRegistry`,
       })
-  
+
       // Check if we have a respon
-  
+
       // Access data based on the structure we see in logs
       // The data might be directly on the resource or under .data
       const resourceData = providerResource.data || providerResource
-      
+
       // Access patients from the appropriate location
       const patients = resourceData.patients || []
-    
-      
+
       setPatients(patients)
-  
-      if (patients.length > 0 && typeof patients[0] === 'object' && patients[0] !== null && 'id' in patients[0]) {
+
+      if (patients.length > 0 && typeof patients[0] === "object" && patients[0] !== null && "id" in patients[0]) {
         setSelectedPatientId(patients[0].id as string)
       }
     } catch (error) {
@@ -252,58 +282,58 @@ function MedicalRecordsDashboard({
   // Fetch medical records for a patient
   const fetchMedicalRecords = async (patientId: string) => {
     if (!aptosClient || !account || !initialized || !patientId) return
-  
+
     try {
       const providerResource = await aptosClient.getAccountResource({
         accountAddress: account.address,
         resourceType: `${MODULE_ADDRESS}::${MODULE_NAME}::ProviderRegistry`,
       })
-  
+
       // Check if we have a response
       if (!providerResource) {
         console.error("Provider resource is undefined")
         return
       }
-  
+
       // Access data based on the structure we see in logs
       const resourceData = providerResource.data || providerResource
-  
+
       // Access medical_records directly from the resource
       const medicalRecords = resourceData.medical_records || []
-      
+
       // Filter records for the specific patient
       const patientRecords = medicalRecords.filter((record: any) => record.patient_id === patientId)
-      
+
       setMedicalRecords(patientRecords)
     } catch (error) {
       console.error("Error fetching medical records:", error)
     }
   }
-  
+
   const fetchAppointments = async (patientId: string) => {
     if (!aptosClient || !account || !initialized || !patientId) return
-  
+
     try {
       const providerResource = await aptosClient.getAccountResource({
         accountAddress: account.address,
         resourceType: `${MODULE_ADDRESS}::${MODULE_NAME}::ProviderRegistry`,
       })
-  
+
       // Check if we have a response
       if (!providerResource) {
         console.error("Provider resource is undefined")
         return
       }
-  
+
       // Access data based on the structure we see in logs
       const resourceData = providerResource.data || providerResource
-  
+
       // Access appointments directly from the resource
       const appointments = resourceData.appointments || []
-      
+
       // Filter appointments for the specific patient
       const patientAppointments = appointments.filter((appointment: any) => appointment.patient_id === patientId)
-      
+
       setAppointments(patientAppointments)
     } catch (error) {
       console.error("Error fetching appointments:", error)
@@ -311,7 +341,16 @@ function MedicalRecordsDashboard({
   }
 
   // Add a new patient
-  const addPatient = async (patientData: { id: any; name: any; age: any; gender: any; contact: any; email: any; address: any; medicalHistory: any }) => {
+  const addPatient = async (patientData: {
+    id: any
+    name: any
+    age: any
+    gender: any
+    contact: any
+    email: any
+    address: any
+    medicalHistory: any
+  }) => {
     if (!aptosClient || !account || !initialized) return
 
     try {
@@ -355,7 +394,14 @@ function MedicalRecordsDashboard({
   }
 
   // Add a medical record
-  const addMedicalRecord = async (recordData: { patientId: any; id: any; recordType: any; diagnosis: any; treatment: any; notes: any }) => {
+  const addMedicalRecord = async (recordData: {
+    patientId: any
+    id: any
+    recordType: any
+    diagnosis: any
+    treatment: any
+    notes: any
+  }) => {
     if (!aptosClient || !account || !initialized) return
 
     try {
@@ -397,7 +443,13 @@ function MedicalRecordsDashboard({
   }
 
   // Schedule an appointment
-  const scheduleAppointment = async (appointmentData: { patientId: any; id: any; date: any; time: any; purpose: any }) => {
+  const scheduleAppointment = async (appointmentData: {
+    patientId: any
+    id: any
+    date: any
+    time: any
+    purpose: any
+  }) => {
     if (!aptosClient || !account || !initialized) return
 
     try {
@@ -522,14 +574,19 @@ function MedicalRecordsDashboard({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 transition-all duration-300 hover:bg-primary/10 hover:border-primary/30"
+          >
             <Plus size={16} />
             Add Patient
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] backdrop-blur-sm">
           <DialogHeader>
-            <DialogTitle>Add New Patient</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Add New Patient
+            </DialogTitle>
             <DialogDescription>Enter the patient's details to create a new record</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -633,14 +690,19 @@ function MedicalRecordsDashboard({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 transition-all duration-300 hover:bg-primary/10 hover:border-primary/30"
+          >
             <Stethoscope size={16} />
             Add Medical Record
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] backdrop-blur-sm">
           <DialogHeader>
-            <DialogTitle>Add Medical Record</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Add Medical Record
+            </DialogTitle>
             <DialogDescription>Enter the details of the medical record</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -718,14 +780,19 @@ function MedicalRecordsDashboard({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 transition-all duration-300 hover:bg-primary/10 hover:border-primary/30"
+          >
             <Calendar size={16} />
             Schedule Appointment
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] backdrop-blur-sm">
           <DialogHeader>
-            <DialogTitle>Schedule Appointment</DialogTitle>
+            <DialogTitle className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Schedule Appointment
+            </DialogTitle>
             <DialogDescription>Enter the details for the new appointment</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -758,30 +825,37 @@ function MedicalRecordsDashboard({
     )
   }
 
+  // Modify the return statement at the end of the component
+  // This keeps the same structure but enhances the styling
   return (
     <div className="flex flex-col gap-6">
       {!initialized ? (
-        <div className="flex flex-col gap-4 p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-          <h2 className="text-lg font-medium">Initialize Healthcare Provider</h2>
+        <div className="flex flex-col gap-4 p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300">
+          <h2 className="text-lg font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            Initialize Healthcare Provider
+          </h2>
           <p className="text-sm text-muted-foreground">
             You need to initialize your healthcare provider account before you can use the system.
           </p>
-          <Button onClick={initializeProvider} disabled={isLoading}>
+          <Button onClick={initializeProvider} disabled={isLoading} className="relative overflow-hidden group">
+            <span className="absolute inset-0 w-0 bg-white/20 transition-all duration-500 ease-out group-hover:w-full"></span>
             {isLoading ? "Initializing..." : "Initialize Provider"}
           </Button>
         </div>
       ) : (
         <>
-          <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+          <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-medium">Patient Management</h2>
+              <h2 className="text-xl font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Patient Management
+              </h2>
               <PatientForm />
             </div>
 
             <div className="mb-4">
               <Label htmlFor="patientSelect">Select Patient</Label>
               <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full transition-all duration-300 hover:border-primary/50">
                   <SelectValue placeholder="Select a patient" />
                 </SelectTrigger>
                 <SelectContent>
@@ -805,7 +879,7 @@ function MedicalRecordsDashboard({
                 {patients.map((patient) => {
                   if (patient.id === selectedPatientId) {
                     return (
-                      <div key={patient.id}>
+                      <div key={patient.id} className="p-4 rounded-lg bg-primary/5 border border-primary/10 transition-all duration-300 hover:border-primary/30">
                         <LabelValueGrid
                           items={[
                             {
@@ -850,7 +924,7 @@ function MedicalRecordsDashboard({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center p-8 gap-4">
-                <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                <AlertCircle className="h-8 w-8 text-muted-foreground animate-pulse" />
                 <p className="text-center text-muted-foreground">No patient selected or no patients registered</p>
               </div>
             )}
@@ -859,30 +933,35 @@ function MedicalRecordsDashboard({
           {selectedPatientId && (
             <Tabs defaultValue="records" className="w-full">
               <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="records" className="flex items-center gap-2">
+                <TabsTrigger value="records" className="flex items-center gap-2 transition-all duration-300">
                   <ClipboardList size={16} />
                   Medical Records
                 </TabsTrigger>
-                <TabsTrigger value="appointments" className="flex items-center gap-2">
+                <TabsTrigger value="appointments" className="flex items-center gap-2 transition-all duration-300">
                   <Calendar size={16} />
                   Appointments
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="records">
-                <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-medium">Medical Records</h2>
+                    <h2 className="text-xl font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      Medical Records
+                    </h2>
                     <MedicalRecordForm />
                   </div>
 
                   {medicalRecords.length > 0 ? (
                     <div className="flex flex-col gap-4">
                       {medicalRecords.map((record, index) => (
-                        <div key={index} className="p-4 border rounded-md">
+                        <div
+                          key={index}
+                          className="p-4 border rounded-md hover:shadow-md transition-all duration-300 hover:border-primary/30 bg-card"
+                        >
                           <div className="flex justify-between mb-2">
-                            <span className="font-medium">{record.id}</span>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="font-medium text-primary">{record.id}</span>
+                            <span className="text-sm text-muted-foreground bg-primary/10 px-2 py-1 rounded-full">
                               {new Date(Number.parseInt(record.date) * 1000).toLocaleString()}
                             </span>
                           </div>
@@ -905,7 +984,7 @@ function MedicalRecordsDashboard({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-8 gap-4">
-                      <ClipboardList className="h-8 w-8 text-muted-foreground" />
+                      <ClipboardList className="h-8 w-8 text-muted-foreground animate-pulse" />
                       <p className="text-center text-muted-foreground">No medical records found for this patient</p>
                     </div>
                   )}
@@ -913,26 +992,32 @@ function MedicalRecordsDashboard({
               </TabsContent>
 
               <TabsContent value="appointments">
-                <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex flex-col p-6 rounded-lg border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300">
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-medium">Appointments</h2>
+                    <h2 className="text-xl font-medium bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      Appointments
+                    </h2>
                     <AppointmentForm />
                   </div>
 
                   {appointments.length > 0 ? (
                     <div className="flex flex-col gap-4">
                       {appointments.map((appointment, index) => (
-                        <div key={index} className="p-4 border rounded-md">
+                        <div
+                          key={index}
+                          className="p-4 border rounded-md hover:shadow-md transition-all duration-300 hover:border-primary/30 bg-card"
+                        >
                           <div className="flex justify-between mb-2">
-                            <span className="font-medium">{appointment.id}</span>
+                            <span className="font-medium text-primary">{appointment.id}</span>
                             <span
-                              className={`text-sm px-2 py-1 rounded ${
+                              className={cn(
+                                "text-sm px-2 py-1 rounded-full",
                                 appointment.status === "completed"
                                   ? "bg-green-100 text-green-800"
                                   : appointment.status === "cancelled"
                                     ? "bg-red-100 text-red-800"
-                                    : "bg-amber-100 text-amber-800"
-                              }`}
+                                    : "bg-amber-100 text-amber-800",
+                              )}
                             >
                               {appointment.status}
                             </span>
@@ -955,6 +1040,7 @@ function MedicalRecordsDashboard({
                                 variant="outline"
                                 onClick={() => updateAppointmentStatus(appointment.id, "completed")}
                                 disabled={isLoading}
+                                className="hover:bg-green-50 hover:text-green-700 hover:border-green-200 transition-colors duration-300"
                               >
                                 Mark as Completed
                               </Button>
@@ -963,6 +1049,7 @@ function MedicalRecordsDashboard({
                                 variant="outline"
                                 onClick={() => updateAppointmentStatus(appointment.id, "cancelled")}
                                 disabled={isLoading}
+                                className="hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors duration-300"
                               >
                                 Cancel
                               </Button>
@@ -973,7 +1060,7 @@ function MedicalRecordsDashboard({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-8 gap-4">
-                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                      <Calendar className="h-8 w-8 text-muted-foreground animate-pulse" />
                       <p className="text-center text-muted-foreground">No appointments found for this patient</p>
                     </div>
                   )}

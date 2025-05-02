@@ -6,6 +6,7 @@ import { Inter as FontSans } from "next/font/google";
 import { PropsWithChildren } from "react";
 import { AutoConnectProvider } from "@/components/AutoConnectProvider";
 import { ReactQueryClientProvider } from "@/components/ReactQueryClientProvider";
+import AptosHealthcareChat from "@/components/AptosHealthcareChat";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
             <ReactQueryClientProvider>
               <WalletProvider>
                 {children}
+                <AptosHealthcareChat />
                 
               </WalletProvider>
             </ReactQueryClientProvider>
