@@ -67,5 +67,5 @@ urllib3==2.2.3
 virtualenv==20.28.0
 websockets==14.1
 yarl==1.18.3
-fastapi==0.104.1
+fastapi==0.109.0  # Updated version that supports anyio 4.x
 uvicorn==0.23.2
