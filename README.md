@@ -106,12 +106,12 @@ To use the AI assistant:
 3. Ask questions about patients, records, or appointments
 
 
-
 ## Acknowledgements
 
 - [Aptos Labs](https://aptoslabs.com/) for the blockchain platform
 - [Next.js](https://nextjs.org/) for the frontend framework
 - [shadcn/ui](https://ui.shadcn.com/) for UI components
+- [Groq](https://groq.com/) for API key and LLM infrastructure
 
 
 
